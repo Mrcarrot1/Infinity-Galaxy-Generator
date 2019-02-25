@@ -59,7 +59,7 @@ namespace Infinity
 
             int seed = UserEntry(defaultGalaxyType, out gameDataPath, out starNumber, out galaxySize, out galaxyType, out random, out bool wormholes);
             string KSPPath = Directory.GetParent(gameDataPath).ToString();
-            gameDataPath += @"Infinity/";
+            gameDataPath += @"/Infinity/";
             Console.WriteLine(gameDataPath);
 
             //====Galaxy Settings====//
