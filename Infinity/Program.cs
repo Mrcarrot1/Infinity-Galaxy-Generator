@@ -20,7 +20,7 @@ namespace Infinity
         {
 			Console.Title = "Infinity Galaxy Generator";
             //====Things for the program itself====//
-            //Uses american decimal system (i hate it)
+            //Uses american decimal system
             Thread.CurrentThread.CurrentCulture = Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             string userName = Environment.UserName;
 
@@ -34,7 +34,7 @@ namespace Infinity
                 @"StarSystems/Wormholes",
 
                 @"Planets",
-                @"Planets\Moons",
+                @"Planets/Moons",
 
                 @"SharedData"
             };
@@ -57,7 +57,8 @@ namespace Infinity
             //Takes infos from the user, return infos and seed
             Random random;
 
-            int seed = UserEntry(defaultGalaxyType, out gameDataPath, out starNumber, out galaxySize, out galaxyType, out random);
+            int seed = UserEntry(defaultGalaxyType, out gameDataPath, out starNumber, out galaxySize, out galaxyType, out random, out bool wormholes);
+            string KSPPath = Directory.GetParent(gameDataPath).ToString();
             gameDataPath += @"Infinity/";
             Console.WriteLine(gameDataPath);
 
@@ -81,10 +82,22 @@ namespace Infinity
 
             Console.WriteLine("Generating the galaxy..\n");
             PlanetaryProcessorDeleting();
-            Galaxy.Generate(gameDataPath, galaxySettings, starDatas, random, templateFiles);
+            Galaxy.Generate(gameDataPath, galaxySettings, starDatas, random, templateFiles, wormholes);
             PlanetaryProcessorDeleting();
 
-            Console.WriteLine("Galaxy generated. Have fun!\n");
+            Console.WriteLine("Galaxy generated. Have fun!\nThe application can automatically launch KSP for you if you would like. y/n.");
+            while(true)
+            {
+                string input = Console.ReadLine();
+                if(input == "y" || input == "Y" || input == "n" || input == "N")
+                {
+
+                }
+                else
+                {
+                    Error("Please enter y or n!");
+                }
+            }
 
             //Exit function
             Console.WriteLine("Press any key to exit.");
@@ -97,7 +110,7 @@ namespace Infinity
         /// Checks user's entries
         /// </summary>
         static int UserEntry(
-            int defaultGalaxyType, out string gameDataPath, out int starNumber, out double galaxySize, out int galaxyType, out Random random)
+            int defaultGalaxyType, out string gameDataPath, out int starNumber, out double galaxySize, out int galaxyType, out Random random, out bool wormholes)
         {
             //====Things for the program itself====//
             bool devMode = false;
@@ -108,11 +121,12 @@ namespace Infinity
             starNumber = 0;
             galaxySize = 0;
             galaxyType = 1;
+            wormholes = false;
             int seed = 0;
             //random = new Random();
             //====================//
 
-            //Checks for the developper mode
+            //Checks for the developer mode
             if (File.Exists(@"C:/Infinity/Developer.INFINITY"))
             {
                 devMode = true;
@@ -123,11 +137,12 @@ namespace Infinity
             try
             {
                 //Checks for the GameData path
+                if(!devMode)
+                    Console.WriteLine("Welcome to Infinity, the procedural Galaxy generator!\n\nPlease enter your GameData folder path:");
                 while (true)
                 {
                     if (!devMode)
                     {
-                        Console.WriteLine("Welcome in Infinity, the procedural Galaxy generator!\n\nPlease enter here your GameData folder path:");
                         gameDataPath = Console.ReadLine();
 
                         if (File.Exists(gameDataPath + @"Squad/squadcore.ksp"))
@@ -156,27 +171,47 @@ namespace Infinity
 
                     if (Int32.TryParse(input, out starNumber)) break;
 
-                    Error("Please put an integrer number");
+                    Error("Please enter an integer!");
                 }
 
                 //User's galaxy size input checking
                 while (true)
                 {
-                    Console.WriteLine("\nWrite here the radius of your Galaxy in Light-Years\n" +
-                        "(Recommended: 0.5 Ly, max is what ksp can support, this means you have to be careful with high values.");
+                    Console.WriteLine("\nEnter the radius of your Galaxy in Light-Years\n" +
+                        "(Recommended: 0.5 Ly, and the max is what KSP can support, so you have to be careful with high values.");
 
                     string input = Console.ReadLine();
 
                     if (Double.TryParse(input, out galaxySize))
                         break;
 
-                    Error("Number incorrect, retry with a correct one");
+                    Error("Please enter a number!");
                 }     
-
+                
+                //Wormhole input checking
+                Console.WriteLine("Woud you like wormholes in your galaxy? y/n or m for more information.");
+                while(true)
+                {
+                    string input = Console.ReadLine();
+                    if (input == "n" || input == "N")
+                    {
+                        wormholes = false;
+                        break;
+                    }
+                    if (input == "y" || input == "Y")
+                    {
+                        wormholes = true;
+                        break;
+                    }
+                    if (input == "m" || input == "M")
+                    {
+                        Console.WriteLine("Wormholes provide an easier method of transportation to other star systems. You need only unlock semi-advanced interplanetary exploration technology to use them. They require the Kopernicus Expansion, and are aimed toward making Infinity easier to visit without mods like KSPI-E or USI Warp Drives. Turn it off if you have an interstellar propulsion mod or enjoy a challenge. y/n.");
+                    }
+                }
                 //User's advanced mode inputs
                 while (true)
                 {
-                    Console.WriteLine("\nDo you want to access to the advanced settings? (y/n)");
+                    Console.WriteLine("\nDo you want to access the advanced settings? (anything/n)");
 
                     string input = Console.ReadLine();
 
@@ -186,8 +221,7 @@ namespace Infinity
                         Random randomSeed = new Random(); seed = randomSeed.Next(int.MinValue, int.MaxValue);
                         break;
                     }
-
-                    if (input.Equals("y") || input.Equals("Y"))
+                    else
                     {
                         while (true)//Galaxy type choice
                         {
@@ -203,7 +237,7 @@ namespace Infinity
 
                             else
                             {
-                                Error("Number incorrect, retry with a correct one");
+                                Error("Please enter a number!");
                             }
                         }
 
@@ -217,10 +251,6 @@ namespace Infinity
 
                         break;
                     }
-                    else
-                    {
-                        Error("Bad choice, retry with a correct one (y/n)");
-                    }
                 }
 
                 //User's choice on delete/generation;
@@ -230,13 +260,11 @@ namespace Infinity
 
                     if (Console.ReadLine().Equals("n"))
                     {
-                        Console.WriteLine("\nOk well bye, so.");
-                        Thread.Sleep(500);
-                        Environment.Exit(0);
+                        ExitFunction();
                     }
                     else
                     {
-                        Console.WriteLine("Hold on some times, the program is removing old files and creating new ones...");
+                        Console.WriteLine("Hang on a bit, the program is removing old files and creating new ones...");
                         break;
                     }
                 }
@@ -329,10 +357,6 @@ namespace Infinity
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(message);
             Console.ResetColor();
-
-            Thread.Sleep(1000);
-
-            Console.Clear();
         }
 
         static void PlanetaryProcessorDeleting()
@@ -350,8 +374,18 @@ namespace Infinity
             }
             catch
             {
-                Error("Acces to processus killing refused");
+                Error("Acces to process killing refused!");
             }
+        }
+        static void ExitFunction()
+        {
+            Console.WriteLine("Press any key to exit.");
+            Console.ReadKey();
+            Environment.Exit(0);
+        }
+        static void LaunchKSP(string KSPPath, bool useLauncher)
+        {
+            
         }
     }
 }

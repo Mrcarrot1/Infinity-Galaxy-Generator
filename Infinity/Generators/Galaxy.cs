@@ -538,7 +538,7 @@ namespace Infinity.Generators
         /// </summary>
         public static void Generate(
             string gameDataPath, Dictionary<string, double> galaxySettings, Dictionary<string, Dictionary<string, string>> starDatabase,
-            Random random, Dictionary<string, string> templateFiles)
+            Random random, Dictionary<string, string> templateFiles, bool wormholes)
         {
             string starFolder = gameDataPath + @"StarSystems\Stars";
 
@@ -557,11 +557,13 @@ namespace Infinity.Generators
                 File.WriteAllText(gameDataPath + @"StarSystems\Stars\Star " + Convert.ToString(i + 1) + ".cfg", StarFile(gameDataPath, i, galaxySettings, templateFiles, starDatabase, random, out starRaw));
 
                 //====Generates wormholes files====//
-                //Down one
-                File.WriteAllText(gameDataPath + @"StarSystems\Wormholes\Wormhole Down to Star " + Convert.ToString(i) + ".cfg", Wormhole(i, galaxySettings, starRaw, templateFiles, false));
-                //And up..
-                File.WriteAllText(gameDataPath + @"StarSystems\Wormholes\Wormhole Up to Star " + Convert.ToString(i+1) + ".cfg", Wormhole(i, galaxySettings, starRaw, templateFiles, true));
-
+                if(wormholes)
+                {
+                    //Down one
+                    File.WriteAllText(gameDataPath + @"StarSystems/Wormholes/Wormhole Down to Star " + Convert.ToString(i) + ".cfg", Wormhole(i, galaxySettings, starRaw, templateFiles, false));
+                    //And up..
+                    File.WriteAllText(gameDataPath + @"StarSystems/Wormholes/Wormhole Up to Star " + Convert.ToString(i + 1) + ".cfg", Wormhole(i, galaxySettings, starRaw, templateFiles, true));
+                }
                 //Creates planet
                 int planetNumber = random.Next(1, 5);
 
