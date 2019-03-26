@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace InfinityPlanets
 {
-    class Program
+	class Program
     {
         static void Main(string[] args)
         {
@@ -54,8 +54,7 @@ namespace InfinityPlanets
                     Console.WriteLine("Congratulations, " + Name + "! We have detected that you are a developer of the Infinity project, and you have bypassed");
                     Console.WriteLine("the checks for a proper GameData!");
                     Console.WriteLine("Proceed with caution.");
-
-
+				
                     break;
                 }
                 if (File.Exists(GDP + "\\Infinity\\Templates\\GasPlanet.cfg") == true)
